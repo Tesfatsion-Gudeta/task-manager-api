@@ -4,7 +4,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
-import { TasksModule } from './tasks/tasks.module';
+import { TasksModule } from './tasks/tasks.module'; // Add this
+import { PrismaModule } from './prisma/prisma.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
@@ -12,6 +13,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PrismaModule,
     AuthModule,
     UsersModule,
     ProjectsModule,
