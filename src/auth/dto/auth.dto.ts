@@ -1,7 +1,12 @@
 // login.dto.ts
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
-import { Role } from '@prisma/client';
-
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { Role } from '../../../generated/prisma';
 
 export class LoginDto {
   @IsEmail()
