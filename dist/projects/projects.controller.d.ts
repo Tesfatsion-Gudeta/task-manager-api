@@ -4,9 +4,10 @@ export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
     create(req: any, createProjectDto: CreateProjectDto): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     findAll(req: any, query: ProjectQueryDto): Promise<{
@@ -17,9 +18,10 @@ export declare class ProjectsController {
                 completed: boolean;
             }[];
         } & {
+            createdAt: Date;
+            updatedAt: Date;
             id: number;
             name: string;
-            createdAt: Date;
             ownerId: number;
         })[];
         meta: {
@@ -30,21 +32,44 @@ export declare class ProjectsController {
         };
     }>;
     findOne(req: any, id: string): Promise<{
+        owner: {
+            email: string;
+            id: number;
+        };
+        tasks: ({
+            assignee: {
+                email: string;
+                id: number;
+            } | null;
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
+            title: string;
+            description: string | null;
+            completed: boolean;
+            projectId: number;
+            assigneeId: number | null;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     update(req: any, id: string, updateProjectDto: UpdateProjectDto): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     remove(req: any, id: string): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
 }

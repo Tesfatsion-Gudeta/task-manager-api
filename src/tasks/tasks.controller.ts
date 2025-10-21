@@ -16,7 +16,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto, TaskQueryDto } from './dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorators';
-import { Role } from '../../generated/prisma';
+import { Role } from '@prisma/client';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)

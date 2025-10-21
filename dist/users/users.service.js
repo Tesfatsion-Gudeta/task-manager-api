@@ -25,8 +25,12 @@ let UsersService = class UsersService {
                 email: true,
                 role: true,
                 createdAt: true,
+                updatedAt: true,
             },
         });
+        if (!user) {
+            throw new Error('User not found');
+        }
         return user;
     }
 };

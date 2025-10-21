@@ -18,7 +18,7 @@ const tasks_service_1 = require("./tasks.service");
 const dto_1 = require("./dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_decorators_1 = require("../common/decorators/roles.decorators");
-const prisma_1 = require("../../generated/prisma");
+const client_1 = require("@prisma/client");
 let TasksController = class TasksController {
     tasksService;
     constructor(tasksService) {
@@ -124,7 +124,7 @@ __decorate([
 ], TasksController.prototype, "unassignTask", null);
 __decorate([
     (0, common_1.Get)('admin/all'),
-    (0, roles_decorators_1.Roles)(prisma_1.Role.ADMIN),
+    (0, roles_decorators_1.Roles)(client_1.Role.ADMIN),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dto_1.TaskQueryDto]),

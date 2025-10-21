@@ -4,9 +4,10 @@ export declare class ProjectsService {
     private prisma;
     constructor(prisma: PrismaService);
     createProject(userId: number, dto: CreateProjectDto): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     findAll(userId: number, query: ProjectQueryDto): Promise<{
@@ -17,9 +18,10 @@ export declare class ProjectsService {
                 completed: boolean;
             }[];
         } & {
+            createdAt: Date;
+            updatedAt: Date;
             id: number;
             name: string;
-            createdAt: Date;
             ownerId: number;
         })[];
         meta: {
@@ -30,21 +32,44 @@ export declare class ProjectsService {
         };
     }>;
     findOne(userId: number, id: number): Promise<{
+        owner: {
+            email: string;
+            id: number;
+        };
+        tasks: ({
+            assignee: {
+                email: string;
+                id: number;
+            } | null;
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
+            title: string;
+            description: string | null;
+            completed: boolean;
+            projectId: number;
+            assigneeId: number | null;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     update(userId: number, id: number, dto: UpdateProjectDto): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     remove(userId: number, id: number): Promise<{
+        createdAt: Date;
+        updatedAt: Date;
         id: number;
         name: string;
-        createdAt: Date;
         ownerId: number;
     }>;
     private validateOwnership;

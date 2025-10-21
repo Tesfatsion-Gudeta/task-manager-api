@@ -12,18 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
-const config_1 = require("@nestjs/config");
 const argon2 = require("argon2");
 const prisma_service_1 = require("../prisma/prisma.service");
 const library_1 = require("@prisma/client/runtime/library");
 let AuthService = class AuthService {
     prisma;
     jwtService;
-    configService;
-    constructor(prisma, jwtService, configService) {
+    constructor(prisma, jwtService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
-        this.configService = configService;
     }
     async register(dto) {
         try {
@@ -70,7 +67,6 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        jwt_1.JwtService,
-        config_1.ConfigService])
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

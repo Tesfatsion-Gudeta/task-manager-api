@@ -4,20 +4,52 @@ export declare class TasksService {
     private prisma;
     constructor(prisma: PrismaService);
     createTask(userId: number, dto: CreateTaskDto): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            id: number;
+            name: string;
+            owner: {
+                email: string;
+                id: number;
+            };
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     findAll(userId: number, query: TaskQueryDto): Promise<{
-        data: {
-            title: string;
-            completed: boolean;
+        data: ({
+            project: {
+                id: number;
+                name: string;
+                owner: {
+                    email: string;
+                    id: number;
+                };
+            };
+            assignee: {
+                email: string;
+                id: number;
+            } | null;
+        } & {
             createdAt: Date;
+            updatedAt: Date;
             id: number;
+            title: string;
+            description: string | null;
+            completed: boolean;
             projectId: number;
-        }[];
+            assigneeId: number | null;
+        })[];
         meta: {
             page: number;
             limit: number;
@@ -26,46 +58,125 @@ export declare class TasksService {
         };
     }>;
     findOne(userId: number, id: number): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            owner: {
+                email: string;
+                password: string;
+                role: import(".prisma/client").$Enums.Role;
+                createdAt: Date;
+                updatedAt: Date;
+                id: number;
+            };
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
+            name: string;
+            ownerId: number;
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     update(userId: number, id: number, dto: UpdateTaskDto): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            id: number;
+            name: string;
+            owner: {
+                email: string;
+                id: number;
+            };
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
-        title: string;
-        completed: boolean;
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     toggleComplete(userId: number, id: number): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            id: number;
+            name: string;
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     assignTask(userId: number, id: number, assigneeId: number): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            id: number;
+            name: string;
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     unassignTask(userId: number, id: number): Promise<{
-        title: string;
-        completed: boolean;
+        project: {
+            id: number;
+            name: string;
+        };
+        assignee: {
+            email: string;
+            id: number;
+        } | null;
+    } & {
         createdAt: Date;
+        updatedAt: Date;
         id: number;
+        title: string;
+        description: string | null;
+        completed: boolean;
         projectId: number;
+        assigneeId: number | null;
     }>;
     private validateTaskOwnership;
 }

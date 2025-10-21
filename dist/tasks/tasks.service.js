@@ -224,6 +224,9 @@ let TasksService = class TasksService {
         const task = await this.prisma.task.findUnique({
             where: { id },
         });
+        if (!task) {
+            throw new common_1.NotFoundException('Task not found');
+        }
         return this.prisma.task.update({
             where: { id },
             data: { completed: !task.completed },

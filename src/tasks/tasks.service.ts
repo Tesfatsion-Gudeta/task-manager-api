@@ -269,6 +269,10 @@ export class TasksService {
       where: { id },
     });
 
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
     return this.prisma.task.update({
       where: { id },
       data: { completed: !task.completed },
