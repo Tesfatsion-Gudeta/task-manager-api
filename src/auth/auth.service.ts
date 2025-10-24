@@ -24,7 +24,6 @@ export class AuthService {
         data: {
           email: dto.email,
           password: hashedPassword,
-          role: "USER",
         },
       });
 
@@ -40,7 +39,6 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-
     //find user
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -59,11 +57,10 @@ export class AuthService {
     return this.generateToken(user.id, user.email);
   }
 
-   private async generateToken(userId: number, email: string) {
+  private async generateToken(userId: number, email: string) {
     const payload = { sub: userId, email };
 
-
-    const token=await this.jwtService.signAsync(payload);
+    const token = await this.jwtService.signAsync(payload);
     return {
       access_token: token,
     };
