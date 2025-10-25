@@ -3,50 +3,50 @@ import { CreateTaskDto, UpdateTaskDto, TaskQueryDto } from './dto';
 export declare class TasksController {
     private readonly tasksService;
     constructor(tasksService: TasksService);
-    create(req: any, createTaskDto: CreateTaskDto): Promise<{
+    create(userId: number, createTaskDto: CreateTaskDto): Promise<{
         project: {
             id: number;
             name: string;
             owner: {
-                email: string;
                 id: number;
+                email: string;
             };
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    findAll(req: any, query: TaskQueryDto): Promise<{
+    findAll(userId: number, query: TaskQueryDto): Promise<{
         data: ({
             project: {
                 id: number;
                 name: string;
                 owner: {
-                    email: string;
                     id: number;
+                    email: string;
                 };
             };
             assignee: {
-                email: string;
                 id: number;
+                email: string;
             } | null;
         } & {
-            description: string | null;
             title: string;
+            description: string | null;
+            completed: boolean;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            completed: boolean;
             projectId: number;
             assigneeId: number | null;
         })[];
@@ -57,15 +57,15 @@ export declare class TasksController {
             totalPages: number;
         };
     }>;
-    findOne(req: any, id: string): Promise<{
+    findOne(userId: number, id: number): Promise<{
         project: {
             owner: {
-                email: string;
-                password: string;
-                role: import(".prisma/client").$Enums.Role;
                 createdAt: Date;
                 updatedAt: Date;
                 id: number;
+                email: string;
+                password: string;
+                role: import(".prisma/client").$Enums.Role;
             };
         } & {
             createdAt: Date;
@@ -75,68 +75,68 @@ export declare class TasksController {
             ownerId: number;
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    update(req: any, id: string, updateTaskDto: UpdateTaskDto): Promise<{
+    update(userId: number, id: number, dto: UpdateTaskDto): Promise<{
         project: {
             id: number;
             name: string;
             owner: {
-                email: string;
                 id: number;
+                email: string;
             };
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    remove(req: any, id: string): Promise<{
-        description: string | null;
+    remove(userId: number, id: number): Promise<{
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    toggleComplete(req: any, id: string): Promise<{
+    toggleComplete(userId: number, id: number): Promise<{
         project: {
             id: number;
             name: string;
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -146,16 +146,16 @@ export declare class TasksController {
             name: string;
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -165,16 +165,16 @@ export declare class TasksController {
             name: string;
         };
         assignee: {
-            email: string;
             id: number;
+            email: string;
         } | null;
     } & {
-        description: string | null;
         title: string;
+        description: string | null;
+        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -184,21 +184,21 @@ export declare class TasksController {
                 id: number;
                 name: string;
                 owner: {
-                    email: string;
                     id: number;
+                    email: string;
                 };
             };
             assignee: {
-                email: string;
                 id: number;
+                email: string;
             } | null;
         } & {
-            description: string | null;
             title: string;
+            description: string | null;
+            completed: boolean;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            completed: boolean;
             projectId: number;
             assigneeId: number | null;
         })[];

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskQueryDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 class TaskQueryDto {
     page = 1;
     limit = 10;
@@ -24,6 +25,7 @@ class TaskQueryDto {
 }
 exports.TaskQueryDto = TaskQueryDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Page number', default: 1 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -31,6 +33,7 @@ __decorate([
     __metadata("design:type", Number)
 ], TaskQueryDto.prototype, "page", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Number of items per page', default: 10 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -38,33 +41,49 @@ __decorate([
     __metadata("design:type", Number)
 ], TaskQueryDto.prototype, "limit", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Search keyword in task title or description',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TaskQueryDto.prototype, "search", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Sort field',
+        enum: ['title', 'completed', 'createdAt'],
+        default: 'createdAt',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(['title', 'completed', 'createdAt']),
     __metadata("design:type", String)
 ], TaskQueryDto.prototype, "sortBy", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Sort order',
+        enum: ['asc', 'desc'],
+        default: 'desc',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(['asc', 'desc']),
     __metadata("design:type", String)
 ], TaskQueryDto.prototype, "sortOrder", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by completion status' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Boolean),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], TaskQueryDto.prototype, "completed", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by project ID' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], TaskQueryDto.prototype, "projectId", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by assignee ID' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),

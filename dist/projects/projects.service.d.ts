@@ -4,24 +4,24 @@ export declare class ProjectsService {
     private prisma;
     constructor(prisma: PrismaService);
     createProject(userId: number, dto: CreateProjectDto): Promise<{
-        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        name: string;
         ownerId: number;
     }>;
     findAll(userId: number, query: ProjectQueryDto): Promise<{
         data: ({
             tasks: {
-                id: number;
-                title: string;
                 completed: boolean;
+                title: string;
+                id: number;
             }[];
         } & {
-            name: string;
             createdAt: Date;
             updatedAt: Date;
             id: number;
+            name: string;
             ownerId: number;
         })[];
         meta: {
@@ -32,44 +32,44 @@ export declare class ProjectsService {
         };
     }>;
     findOne(userId: number, id: number): Promise<{
-        owner: {
-            id: number;
-            email: string;
-        };
         tasks: ({
             assignee: {
-                id: number;
                 email: string;
+                id: number;
             } | null;
         } & {
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            title: string;
-            description: string | null;
             completed: boolean;
             projectId: number;
             assigneeId: number | null;
+            description: string | null;
+            title: string;
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
         })[];
+        owner: {
+            email: string;
+            id: number;
+        };
     } & {
-        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        name: string;
         ownerId: number;
     }>;
     update(userId: number, id: number, dto: UpdateProjectDto): Promise<{
-        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        name: string;
         ownerId: number;
     }>;
     remove(userId: number, id: number): Promise<{
-        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        name: string;
         ownerId: number;
     }>;
     private validateOwnership;

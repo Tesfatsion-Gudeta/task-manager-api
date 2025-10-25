@@ -17,31 +17,32 @@ const common_1 = require("@nestjs/common");
 const tasks_service_1 = require("./tasks.service");
 const dto_1 = require("./dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
+const swagger_1 = require("@nestjs/swagger");
+const get_user_decorators_1 = require("../common/decorators/get-user.decorators");
 const roles_decorators_1 = require("../common/decorators/roles.decorators");
 const client_1 = require("@prisma/client");
-const get_user_decorators_1 = require("../common/decorators/get-user.decorators");
 let TasksController = class TasksController {
     tasksService;
     constructor(tasksService) {
         this.tasksService = tasksService;
     }
-    create(req, createTaskDto) {
-        return this.tasksService.createTask(req.user.id, createTaskDto);
+    create(userId, createTaskDto) {
+        return this.tasksService.createTask(userId, createTaskDto);
     }
-    findAll(req, query) {
-        return this.tasksService.findAll(req.user.id, query);
+    findAll(userId, query) {
+        return this.tasksService.findAll(userId, query);
     }
-    findOne(req, id) {
-        return this.tasksService.findOne(req.user.id, +id);
+    findOne(userId, id) {
+        return this.tasksService.findOne(userId, id);
     }
-    update(req, id, updateTaskDto) {
-        return this.tasksService.update(req.user.id, +id, updateTaskDto);
+    update(userId, id, dto) {
+        return this.tasksService.update(userId, id, dto);
     }
-    remove(req, id) {
-        return this.tasksService.remove(req.user.id, +id);
+    remove(userId, id) {
+        return this.tasksService.remove(userId, id);
     }
-    toggleComplete(req, id) {
-        return this.tasksService.toggleComplete(req.user.id, +id);
+    toggleComplete(userId, id) {
+        return this.tasksService.toggleComplete(userId, id);
     }
     assignTask(userId, id, assigneeId) {
         return this.tasksService.assignTask(userId, id, assigneeId);
@@ -56,57 +57,104 @@ let TasksController = class TasksController {
 exports.TasksController = TasksController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Request)()),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new task in a project' }),
+    (0, swagger_1.ApiBody)({ type: dto_1.CreateTaskDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Task created successfully' }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'User cannot create tasks in projects they do not own',
+    }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, dto_1.CreateTaskDto]),
+    __metadata("design:paramtypes", [Number, dto_1.CreateTaskDto]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Request)()),
+    (0, swagger_1.ApiOperation)({ summary: 'Retrieve all tasks for the authenticated user' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortBy',
+        required: false,
+        enum: ['title', 'completed', 'createdAt'],
+    }),
+    (0, swagger_1.ApiQuery)({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] }),
+    (0, swagger_1.ApiQuery)({ name: 'completed', required: false, type: Boolean }),
+    (0, swagger_1.ApiQuery)({ name: 'projectId', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'assigneeId', required: false, type: Number }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns a paginated list of tasks',
+    }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
     __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, dto_1.TaskQueryDto]),
+    __metadata("design:paramtypes", [Number, dto_1.TaskQueryDto]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Retrieve a single task by its ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns the requested task' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Access denied' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Task not found' }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a task' }),
+    (0, swagger_1.ApiBody)({ type: dto_1.UpdateTaskDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Task updated successfully' }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Cannot modify tasks outside user projects',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Task not found' }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, dto_1.UpdateTaskDto]),
+    __metadata("design:paramtypes", [Number, Number, dto_1.UpdateTaskDto]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a task' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Task deleted successfully' }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Cannot delete tasks outside user projects',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Task not found' }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)(':id/toggle-complete'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Toggle the completion status of a task' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Task completion status toggled' }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "toggleComplete", null);
 __decorate([
     (0, common_1.Post)(':id/assign/:assigneeId'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Assign a task to a user' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Task assigned successfully' }),
     __param(0, (0, get_user_decorators_1.GetUser)('id')),
     __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(2, (0, common_1.Param)('assigneeId', common_1.ParseIntPipe)),
@@ -117,6 +165,8 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/unassign'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Unassign a task' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Task unassigned successfully' }),
     __param(0, (0, get_user_decorators_1.GetUser)('id')),
     __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
@@ -126,12 +176,19 @@ __decorate([
 __decorate([
     (0, common_1.Get)('admin/all'),
     (0, roles_decorators_1.Roles)(client_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Admin: Retrieve all tasks across all projects' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns a paginated list of all tasks for admins',
+    }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dto_1.TaskQueryDto]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "findAllAdmin", null);
 exports.TasksController = TasksController = __decorate([
+    (0, swagger_1.ApiTags)('Tasks'),
+    (0, swagger_1.ApiBearerAuth)('access_token'),
     (0, common_1.Controller)('tasks'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [tasks_service_1.TasksService])

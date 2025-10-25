@@ -3,9 +3,9 @@ export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
     getUserProfile(userId: number): Promise<{
+        createdAt: Date;
         email: string;
         role: import(".prisma/client").$Enums.Role;
-        createdAt: Date;
         updatedAt: Date;
         id: number;
     }>;

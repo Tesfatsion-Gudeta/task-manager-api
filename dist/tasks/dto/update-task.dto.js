@@ -13,11 +13,13 @@ exports.UpdateTaskDto = void 0;
 const mapped_types_1 = require("@nestjs/mapped-types");
 const create_task_dto_1 = require("./create-task.dto");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateTaskDto extends (0, mapped_types_1.PartialType)(create_task_dto_1.CreateTaskDto) {
     completed;
 }
 exports.UpdateTaskDto = UpdateTaskDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Completion status of the task' }),
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)

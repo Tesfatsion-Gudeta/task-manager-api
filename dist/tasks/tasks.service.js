@@ -66,41 +66,39 @@ let TasksService = class TasksService {
         });
     }
     async findAll(userId, query) {
-        const { page, limit, search, sortBy, sortOrder, completed, projectId, assigneeId, } = query;
-        const pageSafe = page ?? 1;
-        const limitSafe = limit ?? 10;
+        const pageSafe = Number(query.page ?? 1);
+        const limitSafe = Number(query.limit ?? 10);
         const skip = (pageSafe - 1) * limitSafe;
+        const { search, sortBy, sortOrder, completed, projectId, assigneeId } = query;
         const where = {
-            project: {
-                ownerId: userId,
-            },
+            project: { ownerId: userId },
         };
         if (search) {
             where.OR = [
-                { title: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
+                { title: { contains: search } },
+                { description: { contains: search } },
             ];
         }
         if (completed !== undefined) {
             where.completed = completed;
         }
-        if (projectId) {
-            where.projectId = projectId;
+        if (projectId !== undefined) {
+            where.projectId = Number(projectId);
         }
-        if (assigneeId) {
-            where.assigneeId = assigneeId;
+        if (assigneeId !== undefined) {
+            where.assigneeId = Number(assigneeId);
         }
         let orderBy;
         switch (sortBy) {
             case 'title':
-                orderBy = { title: sortOrder };
+                orderBy = { title: sortOrder ?? 'asc' };
                 break;
             case 'completed':
-                orderBy = { completed: sortOrder };
+                orderBy = { completed: sortOrder ?? 'asc' };
                 break;
             case 'createdAt':
             default:
-                orderBy = { createdAt: sortOrder };
+                orderBy = { createdAt: sortOrder ?? 'desc' };
                 break;
         }
         const [tasks, total] = await Promise.all([
@@ -114,20 +112,10 @@ let TasksService = class TasksService {
                         select: {
                             id: true,
                             name: true,
-                            owner: {
-                                select: {
-                                    id: true,
-                                    email: true,
-                                },
-                            },
+                            owner: { select: { id: true, email: true } },
                         },
                     },
-                    assignee: {
-                        select: {
-                            id: true,
-                            email: true,
-                        },
-                    },
+                    assignee: { select: { id: true, email: true } },
                 },
             }),
             this.prisma.task.count({ where }),

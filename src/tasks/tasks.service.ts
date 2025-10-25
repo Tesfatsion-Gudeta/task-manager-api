@@ -70,31 +70,23 @@ export class TasksService {
   }
 
   async findAll(userId: number, query: TaskQueryDto) {
-    const {
-      page,
-      limit,
-      search,
-      sortBy,
-      sortOrder,
-      completed,
-      projectId,
-      assigneeId,
-    } = query;
-    const pageSafe = page ?? 1;
-    const limitSafe = limit ?? 10;
+    // Ensure numeric values
+    const pageSafe = Number(query.page ?? 1);
+    const limitSafe = Number(query.limit ?? 10);
     const skip = (pageSafe - 1) * limitSafe;
+
+    const { search, sortBy, sortOrder, completed, projectId, assigneeId } =
+      query;
 
     // Build where clause
     const where: any = {
-      project: {
-        ownerId: userId,
-      },
+      project: { ownerId: userId },
     };
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search } },
+        { description: { contains: search } },
       ];
     }
 
@@ -102,27 +94,26 @@ export class TasksService {
       where.completed = completed;
     }
 
-    if (projectId) {
-      where.projectId = projectId;
+    if (projectId !== undefined) {
+      where.projectId = Number(projectId);
     }
 
-    if (assigneeId) {
-      where.assigneeId = assigneeId;
+    if (assigneeId !== undefined) {
+      where.assigneeId = Number(assigneeId);
     }
 
-    // Type-safe orderBy configuration
+    // Safe orderBy configuration
     let orderBy: any;
-
     switch (sortBy) {
       case 'title':
-        orderBy = { title: sortOrder };
+        orderBy = { title: sortOrder ?? 'asc' };
         break;
       case 'completed':
-        orderBy = { completed: sortOrder };
+        orderBy = { completed: sortOrder ?? 'asc' };
         break;
       case 'createdAt':
       default:
-        orderBy = { createdAt: sortOrder };
+        orderBy = { createdAt: sortOrder ?? 'desc' };
         break;
     }
 
@@ -130,27 +121,17 @@ export class TasksService {
       this.prisma.task.findMany({
         where,
         skip,
-        take: limitSafe,
+        take: limitSafe, // must be number
         orderBy,
         include: {
           project: {
             select: {
               id: true,
               name: true,
-              owner: {
-                select: {
-                  id: true,
-                  email: true,
-                },
-              },
+              owner: { select: { id: true, email: true } },
             },
           },
-          assignee: {
-            select: {
-              id: true,
-              email: true,
-            },
-          },
+          assignee: { select: { id: true, email: true } },
         },
       }),
       this.prisma.task.count({ where }),
