@@ -35,7 +35,6 @@ let ProjectsService = class ProjectsService {
             ...(search && {
                 name: {
                     contains: search,
-                    mode: 'insensitive',
                 },
             }),
         };

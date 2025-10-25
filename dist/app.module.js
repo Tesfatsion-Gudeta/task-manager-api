@@ -9,13 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const core_1 = require("@nestjs/core");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const projects_module_1 = require("./projects/projects.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const prisma_module_1 = require("./prisma/prisma.module");
-const jwt_auth_guard_1 = require("./common/guards/jwt-auth.guard");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,12 +28,6 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             projects_module_1.ProjectsModule,
             tasks_module_1.TasksModule,
-        ],
-        providers: [
-            {
-                provide: core_1.APP_GUARD,
-                useClass: jwt_auth_guard_1.JwtAuthGuard,
-            },
         ],
     })
 ], AppModule);

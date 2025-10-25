@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterDto = exports.LoginDto = void 0;
-const client_1 = require("@prisma/client");
+const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class LoginDto {
     email;
@@ -18,10 +18,19 @@ class LoginDto {
 }
 exports.LoginDto = LoginDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'test@gmail.com',
+        description: 'The registered email address of the user.',
+    }),
     (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: '123456',
+        minLength: 6,
+        description: 'The account password (minimum 6 characters).',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
@@ -29,21 +38,24 @@ __decorate([
 class RegisterDto {
     email;
     password;
-    role;
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'newuser@example.com',
+        description: 'The email address for the new account.',
+    }),
     (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'SecurePass2025!',
+        minLength: 6,
+        description: 'The password for the new user (minimum 6 characters).',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(client_1.Role),
-    __metadata("design:type", String)
-], RegisterDto.prototype, "role", void 0);
 //# sourceMappingURL=auth.dto.js.map

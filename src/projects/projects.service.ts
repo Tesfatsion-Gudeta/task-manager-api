@@ -30,7 +30,6 @@ export class ProjectsService {
       ...(search && {
         name: {
           contains: search,
-          mode: 'insensitive' as const,
         },
       }),
     };

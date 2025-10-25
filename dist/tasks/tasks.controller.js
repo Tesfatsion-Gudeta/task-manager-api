@@ -19,6 +19,7 @@ const dto_1 = require("./dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_decorators_1 = require("../common/decorators/roles.decorators");
 const client_1 = require("@prisma/client");
+const get_user_decorators_1 = require("../common/decorators/get-user.decorators");
 let TasksController = class TasksController {
     tasksService;
     constructor(tasksService) {
@@ -42,11 +43,11 @@ let TasksController = class TasksController {
     toggleComplete(req, id) {
         return this.tasksService.toggleComplete(req.user.id, +id);
     }
-    assignTask(req, id, assigneeId) {
-        return this.tasksService.assignTask(req.user.id, +id, +assigneeId);
+    assignTask(userId, id, assigneeId) {
+        return this.tasksService.assignTask(userId, id, assigneeId);
     }
-    unassignTask(req, id) {
-        return this.tasksService.unassignTask(req.user.id, +id);
+    unassignTask(userId, id) {
+        return this.tasksService.unassignTask(userId, id);
     }
     findAllAdmin(query) {
         return this.tasksService.findAll(0, query);
@@ -106,20 +107,20 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/assign/:assigneeId'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
-    __param(2, (0, common_1.Param)('assigneeId')),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Param)('assigneeId', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:paramtypes", [Number, Number, Number]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "assignTask", null);
 __decorate([
     (0, common_1.Post)(':id/unassign'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], TasksController.prototype, "unassignTask", null);
 __decorate([

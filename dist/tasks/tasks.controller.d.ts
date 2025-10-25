@@ -17,11 +17,11 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -41,11 +41,11 @@ export declare class TasksController {
                 id: number;
             } | null;
         } & {
+            description: string | null;
+            title: string;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            title: string;
-            description: string | null;
             completed: boolean;
             projectId: number;
             assigneeId: number | null;
@@ -79,11 +79,11 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -102,21 +102,21 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
     remove(req: any, id: string): Promise<{
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -131,16 +131,16 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    assignTask(req: any, id: string, assigneeId: string): Promise<{
+    assignTask(userId: number, id: number, assigneeId: number): Promise<{
         project: {
             id: number;
             name: string;
@@ -150,16 +150,16 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
-    unassignTask(req: any, id: string): Promise<{
+    unassignTask(userId: number, id: number): Promise<{
         project: {
             id: number;
             name: string;
@@ -169,11 +169,11 @@ export declare class TasksController {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -193,11 +193,11 @@ export declare class TasksController {
                 id: number;
             } | null;
         } & {
+            description: string | null;
+            title: string;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            title: string;
-            description: string | null;
             completed: boolean;
             projectId: number;
             assigneeId: number | null;

@@ -11,12 +11,14 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto, TaskQueryDto } from './dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorators';
 import { Role } from '@prisma/client';
+import { GetUser } from '../common/decorators/get-user.decorators';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -61,17 +63,20 @@ export class TasksController {
   @Post(':id/assign/:assigneeId')
   @HttpCode(HttpStatus.OK)
   assignTask(
-    @Request() req,
-    @Param('id') id: string,
-    @Param('assigneeId') assigneeId: string,
+    @GetUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('assigneeId', ParseIntPipe) assigneeId: number,
   ) {
-    return this.tasksService.assignTask(req.user.id, +id, +assigneeId);
+    return this.tasksService.assignTask(userId, id, assigneeId);
   }
 
   @Post(':id/unassign')
   @HttpCode(HttpStatus.OK)
-  unassignTask(@Request() req, @Param('id') id: string) {
-    return this.tasksService.unassignTask(req.user.id, +id);
+  unassignTask(
+    @GetUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.tasksService.unassignTask(userId, id);
   }
 
   // Admin only routes

@@ -3,14 +3,14 @@ import { CreateProjectDto, UpdateProjectDto, ProjectQueryDto } from './dto';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
-    create(req: any, createProjectDto: CreateProjectDto): Promise<{
+    create(userId: number, createProjectDto: CreateProjectDto): Promise<{
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        name: string;
         ownerId: number;
     }>;
-    findAll(req: any, query: ProjectQueryDto): Promise<{
+    findAll(userId: number, query: ProjectQueryDto): Promise<{
         data: ({
             tasks: {
                 id: number;
@@ -18,10 +18,10 @@ export declare class ProjectsController {
                 completed: boolean;
             }[];
         } & {
+            name: string;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            name: string;
             ownerId: number;
         })[];
         meta: {
@@ -31,15 +31,15 @@ export declare class ProjectsController {
             totalPages: number;
         };
     }>;
-    findOne(req: any, id: string): Promise<{
+    findOne(userId: number, id: number): Promise<{
         owner: {
-            email: string;
             id: number;
+            email: string;
         };
         tasks: ({
             assignee: {
-                email: string;
                 id: number;
+                email: string;
             } | null;
         } & {
             createdAt: Date;
@@ -52,24 +52,24 @@ export declare class ProjectsController {
             assigneeId: number | null;
         })[];
     } & {
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        name: string;
         ownerId: number;
     }>;
-    update(req: any, id: string, updateProjectDto: UpdateProjectDto): Promise<{
+    update(userId: number, id: number, updateProjectDto: UpdateProjectDto): Promise<{
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        name: string;
         ownerId: number;
     }>;
-    remove(req: any, id: string): Promise<{
+    remove(userId: number, id: number): Promise<{
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        name: string;
         ownerId: number;
     }>;
 }

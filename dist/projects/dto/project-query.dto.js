@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectQueryDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 class ProjectQueryDto {
     page = 1;
     limit = 10;
@@ -21,6 +22,7 @@ class ProjectQueryDto {
 }
 exports.ProjectQueryDto = ProjectQueryDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Page number', example: 1 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -28,6 +30,7 @@ __decorate([
     __metadata("design:type", Number)
 ], ProjectQueryDto.prototype, "page", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Number of items per page', example: 10 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -35,16 +38,22 @@ __decorate([
     __metadata("design:type", Number)
 ], ProjectQueryDto.prototype, "limit", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Search by project name',
+        example: 'Website',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ProjectQueryDto.prototype, "search", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Sort by field', example: 'createdAt' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(['name', 'createdAt']),
     __metadata("design:type", String)
 ], ProjectQueryDto.prototype, "sortBy", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Sort order', example: 'desc' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(['asc', 'desc']),
     __metadata("design:type", String)

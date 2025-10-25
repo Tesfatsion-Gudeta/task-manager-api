@@ -29,7 +29,6 @@ let AuthService = class AuthService {
                 data: {
                     email: dto.email,
                     password: hashedPassword,
-                    role: dto.role,
                 },
             });
             return this.generateToken(user.id, user.email);
@@ -56,10 +55,11 @@ let AuthService = class AuthService {
         }
         return this.generateToken(user.id, user.email);
     }
-    generateToken(userId, email) {
+    async generateToken(userId, email) {
         const payload = { sub: userId, email };
+        const token = await this.jwtService.signAsync(payload);
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: token,
         };
     }
 };

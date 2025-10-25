@@ -17,11 +17,11 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -41,11 +41,11 @@ export declare class TasksService {
                 id: number;
             } | null;
         } & {
+            description: string | null;
+            title: string;
             createdAt: Date;
             updatedAt: Date;
             id: number;
-            title: string;
-            description: string | null;
             completed: boolean;
             projectId: number;
             assigneeId: number | null;
@@ -79,11 +79,11 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -102,21 +102,21 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -131,11 +131,11 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -150,11 +150,11 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;
@@ -169,11 +169,11 @@ export declare class TasksService {
             id: number;
         } | null;
     } & {
+        description: string | null;
+        title: string;
         createdAt: Date;
         updatedAt: Date;
         id: number;
-        title: string;
-        description: string | null;
         completed: boolean;
         projectId: number;
         assigneeId: number | null;

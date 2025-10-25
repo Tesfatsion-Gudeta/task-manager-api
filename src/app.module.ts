@@ -19,11 +19,5 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     ProjectsModule,
     TasksModule,
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
 })
 export class AppModule {}

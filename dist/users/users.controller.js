@@ -16,21 +16,22 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const users_service_1 = require("./users.service");
+const get_user_decorators_1 = require("../common/decorators/get-user.decorators");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
-    getProfile(req) {
-        return this.usersService.getUserProfile(req.user.id);
+    getProfile(userId) {
+        return this.usersService.getUserProfile(userId);
     }
 };
 exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Get)('profile'),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getProfile", null);
 exports.UsersController = UsersController = __decorate([
