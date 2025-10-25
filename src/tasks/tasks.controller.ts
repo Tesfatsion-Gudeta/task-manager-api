@@ -151,6 +151,6 @@ export class TasksController {
     description: 'Returns a paginated list of all tasks for admins',
   })
   findAllAdmin(@Query() query: TaskQueryDto) {
-    return this.tasksService.findAll(0, query);
+    return this.tasksService.findAll(0, query, true);
   }
 }

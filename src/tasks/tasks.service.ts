@@ -69,8 +69,7 @@ export class TasksService {
     });
   }
 
-  async findAll(userId: number, query: TaskQueryDto) {
-    // Ensure numeric values
+  async findAll(userId: number, query: TaskQueryDto, isAdmin = false) {
     const pageSafe = Number(query.page ?? 1);
     const limitSafe = Number(query.limit ?? 10);
     const skip = (pageSafe - 1) * limitSafe;
@@ -79,9 +78,12 @@ export class TasksService {
       query;
 
     // Build where clause
-    const where: any = {
-      project: { ownerId: userId },
-    };
+    const where: any = {};
+
+    // Only filter by project owner if not admin
+    if (!isAdmin) {
+      where.project = { ownerId: userId };
+    }
 
     if (search) {
       where.OR = [
@@ -90,19 +92,11 @@ export class TasksService {
       ];
     }
 
-    if (completed !== undefined) {
-      where.completed = completed;
-    }
+    if (completed !== undefined) where.completed = completed;
+    if (projectId !== undefined) where.projectId = Number(projectId);
+    if (assigneeId !== undefined) where.assigneeId = Number(assigneeId);
 
-    if (projectId !== undefined) {
-      where.projectId = Number(projectId);
-    }
-
-    if (assigneeId !== undefined) {
-      where.assigneeId = Number(assigneeId);
-    }
-
-    // Safe orderBy configuration
+    // Order by
     let orderBy: any;
     switch (sortBy) {
       case 'title':
@@ -121,7 +115,7 @@ export class TasksService {
       this.prisma.task.findMany({
         where,
         skip,
-        take: limitSafe, // must be number
+        take: limitSafe,
         orderBy,
         include: {
           project: {
