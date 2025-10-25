@@ -8,21 +8,21 @@ export declare class TasksController {
             id: number;
             name: string;
             owner: {
-                id: number;
                 email: string;
+                id: number;
             };
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -32,21 +32,21 @@ export declare class TasksController {
                 id: number;
                 name: string;
                 owner: {
-                    id: number;
                     email: string;
+                    id: number;
                 };
             };
             assignee: {
-                id: number;
                 email: string;
+                id: number;
             } | null;
         } & {
-            title: string;
-            description: string | null;
-            completed: boolean;
             createdAt: Date;
             updatedAt: Date;
             id: number;
+            description: string | null;
+            title: string;
+            completed: boolean;
             projectId: number;
             assigneeId: number | null;
         })[];
@@ -60,12 +60,13 @@ export declare class TasksController {
     findOne(userId: number, id: number): Promise<{
         project: {
             owner: {
+                email: string;
+                password: string;
+                hashedRt: string | null;
+                role: import(".prisma/client").$Enums.Role;
                 createdAt: Date;
                 updatedAt: Date;
                 id: number;
-                email: string;
-                password: string;
-                role: import(".prisma/client").$Enums.Role;
             };
         } & {
             createdAt: Date;
@@ -75,16 +76,16 @@ export declare class TasksController {
             ownerId: number;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -93,31 +94,31 @@ export declare class TasksController {
             id: number;
             name: string;
             owner: {
-                id: number;
                 email: string;
+                id: number;
             };
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -127,16 +128,16 @@ export declare class TasksController {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -146,16 +147,16 @@ export declare class TasksController {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -165,16 +166,16 @@ export declare class TasksController {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -184,21 +185,21 @@ export declare class TasksController {
                 id: number;
                 name: string;
                 owner: {
-                    id: number;
                     email: string;
+                    id: number;
                 };
             };
             assignee: {
-                id: number;
                 email: string;
+                id: number;
             } | null;
         } & {
-            title: string;
-            description: string | null;
-            completed: boolean;
             createdAt: Date;
             updatedAt: Date;
             id: number;
+            description: string | null;
+            title: string;
+            completed: boolean;
             projectId: number;
             assigneeId: number | null;
         })[];

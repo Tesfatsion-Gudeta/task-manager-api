@@ -21,11 +21,12 @@ exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
             passport_1.PassportModule,
+            config_1.ConfigModule,
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({
-                    secret: configService.get('JWT_SECRET'),
-                    signOptions: { expiresIn: '1d' },
+                    secret: configService.get('JWT_ACCESS_SECRET'),
+                    signOptions: { expiresIn: configService.get('JWT_ACCESS_EXPIRES') },
                 }),
                 inject: [config_1.ConfigService],
             }),

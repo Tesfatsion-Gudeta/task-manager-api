@@ -62,6 +62,7 @@ export declare class TasksService {
             owner: {
                 email: string;
                 password: string;
+                hashedRt: string | null;
                 role: import(".prisma/client").$Enums.Role;
                 createdAt: Date;
                 updatedAt: Date;

@@ -12,6 +12,7 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   password  String
+  hashedRt       String?   // hashed refresh token (nullable)
   role      Role      @default(USER)
   projects  Project[]
   assignedTasks Task[] @relation("TaskAssignee")

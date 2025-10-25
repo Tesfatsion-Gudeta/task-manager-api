@@ -10,12 +10,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     configService: ConfigService,
     private prisma: PrismaService,
   ) {
-    const jwtSecret = configService.get<string>('JWT_SECRET');
+    const jwtSecret = configService.get<string>('JWT_ACCESS_SECRET');
 
-    // Ensure JWT_SECRET is defined
+    // Ensure JWT_ACCESS_SECRET is defined
     if (!jwtSecret) {
       throw new Error(
-        'JWT_SECRET is not defined in the environment configuration!',
+        'JWT_ACCESS_SECRET is not defined in the environment configuration!',
       );
     }
 
@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       //   throw new Error('User not found');
     }
 
-    const {password,...safesUser}=user;
+    const { password, ...safesUser } = user;
     return safesUser;
   }
 }
