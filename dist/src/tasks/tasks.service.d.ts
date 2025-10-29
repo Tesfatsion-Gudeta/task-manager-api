@@ -8,21 +8,21 @@ export declare class TasksService {
             id: number;
             name: string;
             owner: {
-                id: number;
                 email: string;
+                id: number;
             };
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -32,21 +32,21 @@ export declare class TasksService {
                 id: number;
                 name: string;
                 owner: {
-                    id: number;
                     email: string;
+                    id: number;
                 };
             };
             assignee: {
-                id: number;
                 email: string;
+                id: number;
             } | null;
         } & {
-            title: string;
-            description: string | null;
-            completed: boolean;
             createdAt: Date;
             updatedAt: Date;
             id: number;
+            description: string | null;
+            title: string;
+            completed: boolean;
             projectId: number;
             assigneeId: number | null;
         })[];
@@ -60,13 +60,13 @@ export declare class TasksService {
     findOne(userId: number, id: number): Promise<{
         project: {
             owner: {
-                createdAt: Date;
-                updatedAt: Date;
-                id: number;
                 email: string;
                 password: string;
                 hashedRt: string | null;
                 role: import(".prisma/client").$Enums.Role;
+                createdAt: Date;
+                updatedAt: Date;
+                id: number;
             };
         } & {
             createdAt: Date;
@@ -76,16 +76,16 @@ export declare class TasksService {
             ownerId: number;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -94,31 +94,31 @@ export declare class TasksService {
             id: number;
             name: string;
             owner: {
-                id: number;
                 email: string;
+                id: number;
             };
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -128,16 +128,16 @@ export declare class TasksService {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -147,16 +147,16 @@ export declare class TasksService {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
@@ -166,16 +166,16 @@ export declare class TasksService {
             name: string;
         };
         assignee: {
-            id: number;
             email: string;
+            id: number;
         } | null;
     } & {
-        title: string;
-        description: string | null;
-        completed: boolean;
         createdAt: Date;
         updatedAt: Date;
         id: number;
+        description: string | null;
+        title: string;
+        completed: boolean;
         projectId: number;
         assigneeId: number | null;
     }>;
