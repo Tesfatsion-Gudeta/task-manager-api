@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto, UpdateProjectDto, ProjectQueryDto } from './dto';
+import {
+  CreateProjectDto,
+  UpdateProjectDto,
+  ProjectQueryDto,
+  ProjectsListResponseDto, // Import the DTO
+} from './dto';
 import { GetUser } from '../common/decorators/get-user.decorators';
 import {
   ApiTags,
@@ -25,65 +30,22 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Projects')
-@ApiBearerAuth('access_token') // Swagger will send the JWT
+@ApiBearerAuth('access_token')
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new project' })
-  @ApiBody({ type: CreateProjectDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Project created successfully',
-    schema: {
-      example: {
-        id: 1,
-        name: 'Website Redesign',
-        ownerId: 1,
-        createdAt: '2025-10-25T13:00:00.000Z',
-        updatedAt: '2025-10-25T13:00:00.000Z',
-      },
-    },
-  })
-  async create(
-    @GetUser('id') userId: number,
-    @Body() createProjectDto: CreateProjectDto,
-  ) {
-    return this.projectsService.createProject(userId, createProjectDto);
-  }
-
   @Get()
   @ApiOperation({ summary: 'Get all projects for the logged-in user' })
-  @ApiQuery({ name: 'page', required: false, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, example: 10 })
-  @ApiQuery({ name: 'search', required: false, example: 'Website' })
-  @ApiQuery({ name: 'sortBy', required: false, example: 'createdAt' })
-  @ApiQuery({ name: 'sortOrder', required: false, example: 'desc' })
   @ApiResponse({
     status: 200,
-    description: 'List of projects with pagination metadata',
-    schema: {
-      example: {
-        data: [
-          {
-            id: 1,
-            name: 'Website Redesign',
-            ownerId: 1,
-            tasks: [{ id: 1, title: 'Landing page', completed: false }],
-            createdAt: '2025-10-25T13:00:00.000Z',
-            updatedAt: '2025-10-25T13:00:00.000Z',
-          },
-        ],
-        meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
-      },
-    },
+    type: ProjectsListResponseDto, // Use the DTO type directly!
   })
   async findAll(
     @GetUser('id') userId: number,
     @Query() query: ProjectQueryDto,
-  ) {
+  ): Promise<ProjectsListResponseDto> {
     return this.projectsService.findAll(userId, query);
   }
 

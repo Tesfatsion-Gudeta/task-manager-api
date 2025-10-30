@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserThrottlerGuard } from './common/guards/user-throttler.guard';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserThrottlerGuard } from './common/guards/user-throttler.guard';
         limit: 100, // Default limit (100 requests per 60 sec)
       },
     ]),
+    RedisModule,
     PrismaModule,
     AuthModule,
     UsersModule,

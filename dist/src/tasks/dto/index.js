@@ -17,4 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./create-task.dto"), exports);
 __exportStar(require("./update-task.dto"), exports);
 __exportStar(require("./task-query.dto"), exports);
+__exportStar(require("./task-response.dto"), exports);
 //# sourceMappingURL=index.js.map

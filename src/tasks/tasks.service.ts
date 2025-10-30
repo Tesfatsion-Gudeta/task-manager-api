@@ -3,16 +3,50 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateTaskDto, UpdateTaskDto, TaskQueryDto } from './dto';
+import { RedisCacheService } from '../redis/redis-cache.service';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskQueryDto,
+  TaskResponseDto,
+  TasksListResponseDto,
+} from './dto';
+import { Task } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redisCacheService: RedisCacheService,
+  ) {}
 
-  async createTask(userId: number, dto: CreateTaskDto) {
-    // Verify the project exists and user owns it
+  // Cache key generators
+  private getTaskCacheKey(taskId: number): string {
+    return `task:${taskId}`;
+  }
+
+  private getTasksListCacheKey(userId: number, query: TaskQueryDto): string {
+    const queryString = JSON.stringify({
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      completed: query.completed,
+      projectId: query.projectId,
+      assigneeId: query.assigneeId,
+    });
+    const queryHash = Buffer.from(queryString).toString('base64url');
+    return `tasks:user:${userId}:${queryHash}`;
+  }
+
+  async createTask(
+    userId: number,
+    dto: CreateTaskDto,
+  ): Promise<TaskResponseDto> {
     const project = await this.prisma.project.findUnique({
       where: { id: dto.projectId },
       include: { owner: true },
@@ -28,7 +62,6 @@ export class TasksService {
       );
     }
 
-    // If assigneeId is provided, verify the user exists
     if (dto.assigneeId) {
       const assignee = await this.prisma.user.findUnique({
         where: { id: dto.assigneeId },
@@ -39,7 +72,7 @@ export class TasksService {
       }
     }
 
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: {
         title: dto.title,
         description: dto.description,
@@ -51,25 +84,38 @@ export class TasksService {
           select: {
             id: true,
             name: true,
-            owner: {
-              select: {
-                id: true,
-                email: true,
-              },
-            },
+            owner: { select: { id: true, email: true } },
           },
         },
-        assignee: {
-          select: {
-            id: true,
-            email: true,
-          },
-        },
+        assignee: { select: { id: true, email: true } },
       },
     });
+
+    // Invalidate the project cache since tasks changed
+    await this.redisCacheService.del(this.getTaskCacheKey(dto.projectId));
+    console.log(`🆕 Created task ${task.id} - related caches invalidated`);
+
+    // Return as TaskResponseDto (the Prisma result already matches the DTO structure)
+    return task as unknown as TaskResponseDto;
   }
 
-  async findAll(userId: number, query: TaskQueryDto, isAdmin = false) {
+  async findAll(
+    userId: number,
+    query: TaskQueryDto,
+    isAdmin = false,
+  ): Promise<TasksListResponseDto> {
+    const cacheKey = this.getTasksListCacheKey(userId, query);
+
+    // Use the DTO type for caching
+    const cachedTasks =
+      await this.redisCacheService.get<TasksListResponseDto>(cacheKey);
+    if (cachedTasks !== undefined) {
+      console.log(`✅ Serving tasks list from cache for user ${userId}`);
+      return cachedTasks;
+    }
+
+    console.log(`🔍 Fetching tasks from database for user ${userId}`);
+
     const pageSafe = Number(query.page ?? 1);
     const limitSafe = Number(query.limit ?? 10);
     const skip = (pageSafe - 1) * limitSafe;
@@ -77,26 +123,20 @@ export class TasksService {
     const { search, sortBy, sortOrder, completed, projectId, assigneeId } =
       query;
 
-    // Build where clause
     const where: any = {};
-
-    // Only filter by project owner if not admin
     if (!isAdmin) {
       where.project = { ownerId: userId };
     }
-
     if (search) {
       where.OR = [
         { title: { contains: search } },
         { description: { contains: search } },
       ];
     }
-
     if (completed !== undefined) where.completed = completed;
     if (projectId !== undefined) where.projectId = Number(projectId);
     if (assigneeId !== undefined) where.assigneeId = Number(assigneeId);
 
-    // Order by
     let orderBy: any;
     switch (sortBy) {
       case 'title':
@@ -131,8 +171,8 @@ export class TasksService {
       this.prisma.task.count({ where }),
     ]);
 
-    return {
-      data: tasks,
+    const result: TasksListResponseDto = {
+      data: tasks as unknown as TaskResponseDto[],
       meta: {
         page: pageSafe,
         limit: limitSafe,
@@ -140,9 +180,31 @@ export class TasksService {
         totalPages: Math.ceil(total / limitSafe),
       },
     };
+
+    await this.redisCacheService.set(cacheKey, result, 300);
+    console.log(`💾 Cached tasks list for user ${userId} (5min TTL)`);
+    return result;
   }
 
-  async findOne(userId: number, id: number) {
+  async findOne(userId: number, id: number): Promise<TaskResponseDto> {
+    const cacheKey = this.getTaskCacheKey(id);
+
+    // Use the DTO type for caching
+    const cachedTask =
+      await this.redisCacheService.get<TaskResponseDto>(cacheKey);
+    if (cachedTask !== undefined) {
+      console.log(`✅ Serving task ${id} from cache`);
+
+      // TypeScript knows the structure from our DTO
+      if (cachedTask.project.owner.id !== userId) {
+        throw new ForbiddenException('Access denied');
+      }
+
+      return cachedTask;
+    }
+
+    console.log(`🔍 Fetching task ${id} from database`);
+
     const task = await this.prisma.task.findUnique({
       where: { id },
       include: {
@@ -164,19 +226,28 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    // Check if user owns the project that contains this task
     if (task.project.ownerId !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
-    return task;
+    // Cache using the DTO type
+    await this.redisCacheService.set(
+      cacheKey,
+      task as unknown as TaskResponseDto,
+      3600,
+    );
+    console.log(`💾 Cached task ${id} (1hr TTL)`);
+    return task as unknown as TaskResponseDto;
   }
 
-  async update(userId: number, id: number, dto: UpdateTaskDto) {
-    await this.validateTaskOwnership(userId, id);
+  async update(
+    userId: number,
+    id: number,
+    dto: UpdateTaskDto,
+  ): Promise<TaskResponseDto> {
+    const task = await this.validateTaskOwnership(userId, id);
 
-    // If changing project, verify ownership of new project
-    if (dto.projectId) {
+    if (dto.projectId && dto.projectId !== task.projectId) {
       const newProject = await this.prisma.project.findUnique({
         where: { id: dto.projectId },
       });
@@ -192,7 +263,6 @@ export class TasksService {
       }
     }
 
-    // If changing assignee, verify the user exists
     if (dto.assigneeId) {
       const assignee = await this.prisma.user.findUnique({
         where: { id: dto.assigneeId },
@@ -203,7 +273,7 @@ export class TasksService {
       }
     }
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: dto,
       include: {
@@ -211,44 +281,34 @@ export class TasksService {
           select: {
             id: true,
             name: true,
-            owner: {
-              select: {
-                id: true,
-                email: true,
-              },
-            },
+            owner: { select: { id: true, email: true } },
           },
         },
-        assignee: {
-          select: {
-            id: true,
-            email: true,
-          },
-        },
+        assignee: { select: { id: true, email: true } },
       },
     });
+
+    await this.redisCacheService.del(this.getTaskCacheKey(id));
+    console.log(`🗑️ Invalidated cache for updated task ${id}`);
+    return updatedTask as unknown as TaskResponseDto;
   }
 
-  async remove(userId: number, id: number) {
-    await this.validateTaskOwnership(userId, id);
+  async remove(userId: number, id: number): Promise<{ message: string }> {
+    const task = await this.validateTaskOwnership(userId, id);
 
-    return this.prisma.task.delete({
-      where: { id },
-    });
-  }
-
-  async toggleComplete(userId: number, id: number) {
-    await this.validateTaskOwnership(userId, id);
-
-    const task = await this.prisma.task.findUnique({
+    await this.prisma.task.delete({
       where: { id },
     });
 
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
+    await this.redisCacheService.del(this.getTaskCacheKey(id));
+    console.log(`🗑️ Invalidated cache for deleted task ${id}`);
+    return { message: 'Task deleted successfully' };
+  }
 
-    return this.prisma.task.update({
+  async toggleComplete(userId: number, id: number): Promise<TaskResponseDto> {
+    const task = await this.validateTaskOwnership(userId, id);
+
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: { completed: !task.completed },
       include: {
@@ -266,12 +326,19 @@ export class TasksService {
         },
       },
     });
+
+    await this.redisCacheService.del(this.getTaskCacheKey(id));
+    console.log(`🗑️ Invalidated cache for toggled task ${id}`);
+    return updatedTask as unknown as TaskResponseDto;
   }
 
-  async assignTask(userId: number, id: number, assigneeId: number) {
-    await this.validateTaskOwnership(userId, id);
+  async assignTask(
+    userId: number,
+    id: number,
+    assigneeId: number,
+  ): Promise<TaskResponseDto> {
+    const task = await this.validateTaskOwnership(userId, id);
 
-    // Verify assignee exists
     const assignee = await this.prisma.user.findUnique({
       where: { id: assigneeId },
     });
@@ -280,7 +347,7 @@ export class TasksService {
       throw new BadRequestException('Assignee not found');
     }
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: { assigneeId },
       include: {
@@ -298,12 +365,16 @@ export class TasksService {
         },
       },
     });
+
+    await this.redisCacheService.del(this.getTaskCacheKey(id));
+    console.log(`🗑️ Invalidated cache for assigned task ${id}`);
+    return updatedTask as unknown as TaskResponseDto;
   }
 
-  async unassignTask(userId: number, id: number) {
-    await this.validateTaskOwnership(userId, id);
+  async unassignTask(userId: number, id: number): Promise<TaskResponseDto> {
+    const task = await this.validateTaskOwnership(userId, id);
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: { assigneeId: null },
       include: {
@@ -321,13 +392,24 @@ export class TasksService {
         },
       },
     });
+
+    await this.redisCacheService.del(this.getTaskCacheKey(id));
+    console.log(`🗑️ Invalidated cache for unassigned task ${id}`);
+    return updatedTask as unknown as TaskResponseDto;
   }
 
-  private async validateTaskOwnership(userId: number, taskId: number) {
+  private async validateTaskOwnership(
+    userId: number,
+    taskId: number,
+  ): Promise<Task & { project: { ownerId: number } }> {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
-        project: true,
+        project: {
+          select: {
+            ownerId: true,
+          },
+        },
       },
     });
 
@@ -340,5 +422,7 @@ export class TasksService {
         'You can only modify tasks in your own projects',
       );
     }
+
+    return task;
   }
 }

@@ -12,20 +12,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const redis_cache_service_1 = require("../redis/redis-cache.service");
 let ProjectsService = class ProjectsService {
     prisma;
-    constructor(prisma) {
+    redisCacheService;
+    constructor(prisma, redisCacheService) {
         this.prisma = prisma;
+        this.redisCacheService = redisCacheService;
+    }
+    getProjectCacheKey(projectId) {
+        return `project:${projectId}`;
+    }
+    getProjectsListCacheKey(userId, query) {
+        const queryString = JSON.stringify({
+            page: query.page,
+            limit: query.limit,
+            search: query.search,
+            sortBy: query.sortBy,
+            sortOrder: query.sortOrder,
+        });
+        const queryHash = Buffer.from(queryString).toString('base64url');
+        return `projects:user:${userId}:${queryHash}`;
     }
     async createProject(userId, dto) {
-        return this.prisma.project.create({
+        const project = await this.prisma.project.create({
             data: {
                 name: dto.name,
                 ownerId: userId,
             },
         });
+        console.log(`🆕 Created project ${project.id} - lists will auto-expire`);
+        return project;
     }
     async findAll(userId, query) {
+        const cacheKey = this.getProjectsListCacheKey(userId, query);
+        const cachedProjects = await this.redisCacheService.get(cacheKey);
+        if (cachedProjects !== undefined) {
+            console.log(`✅ Serving projects list from cache for user ${userId}`);
+            return cachedProjects;
+        }
+        console.log(`🔍 Fetching projects from database for user ${userId}`);
         const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
         const sanitizedPage = Math.max(1, page);
         const sanitizedLimit = Math.max(1, limit);
@@ -56,7 +82,7 @@ let ProjectsService = class ProjectsService {
             }),
             this.prisma.project.count({ where }),
         ]);
-        return {
+        const result = {
             data: projects,
             meta: {
                 page: sanitizedPage,
@@ -65,8 +91,21 @@ let ProjectsService = class ProjectsService {
                 totalPages: Math.ceil(total / sanitizedLimit),
             },
         };
+        await this.redisCacheService.set(cacheKey, result, 300);
+        console.log(`💾 Cached projects list for user ${userId} (5min TTL)`);
+        return result;
     }
     async findOne(userId, id) {
+        const cacheKey = this.getProjectCacheKey(id);
+        const cachedProject = await this.redisCacheService.get(cacheKey);
+        if (cachedProject !== undefined) {
+            console.log(`✅ Serving project ${id} from cache`);
+            if (cachedProject.ownerId !== userId) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+            return cachedProject;
+        }
+        console.log(`🔍 Fetching project ${id} from database`);
         const project = await this.prisma.project.findUnique({
             where: { id },
             include: {
@@ -94,20 +133,28 @@ let ProjectsService = class ProjectsService {
         if (project.ownerId !== userId) {
             throw new common_1.ForbiddenException('Access denied');
         }
+        await this.redisCacheService.set(cacheKey, project, 3600);
+        console.log(`💾 Cached project ${id} (1hr TTL)`);
         return project;
     }
     async update(userId, id, dto) {
         await this.validateOwnership(userId, id);
-        return this.prisma.project.update({
+        const updatedProject = await this.prisma.project.update({
             where: { id },
             data: dto,
         });
+        await this.redisCacheService.del(this.getProjectCacheKey(id));
+        console.log(`🗑️ Invalidated cache for updated project ${id}`);
+        return updatedProject;
     }
     async remove(userId, id) {
         await this.validateOwnership(userId, id);
-        return this.prisma.project.delete({
+        const deletedProject = await this.prisma.project.delete({
             where: { id },
         });
+        await this.redisCacheService.del(this.getProjectCacheKey(id));
+        console.log(`🗑️ Invalidated cache for deleted project ${id}`);
+        return deletedProject;
     }
     async validateOwnership(userId, projectId) {
         const project = await this.prisma.project.findUnique({
@@ -124,6 +171,7 @@ let ProjectsService = class ProjectsService {
 exports.ProjectsService = ProjectsService;
 exports.ProjectsService = ProjectsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        redis_cache_service_1.RedisCacheService])
 ], ProjectsService);
 //# sourceMappingURL=projects.service.js.map

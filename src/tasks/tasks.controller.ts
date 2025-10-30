@@ -13,7 +13,13 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto, UpdateTaskDto, TaskQueryDto } from './dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskQueryDto,
+  TasksListResponseDto,
+  TaskResponseDto,
+} from './dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import {
   ApiTags,
@@ -37,12 +43,19 @@ export class TasksController {
   @Post()
   @ApiOperation({ summary: 'Create a new task in a project' })
   @ApiBody({ type: CreateTaskDto })
-  @ApiResponse({ status: 201, description: 'Task created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Task created successfully',
+    type: TaskResponseDto,
+  })
   @ApiResponse({
     status: 403,
     description: 'User cannot create tasks in projects they do not own',
   })
-  create(@GetUser('id') userId: number, @Body() createTaskDto: CreateTaskDto) {
+  create(
+    @GetUser('id') userId: number,
+    @Body() createTaskDto: CreateTaskDto,
+  ): Promise<TaskResponseDto> {
     return this.tasksService.createTask(userId, createTaskDto);
   }
 
@@ -63,27 +76,39 @@ export class TasksController {
   @ApiResponse({
     status: 200,
     description: 'Returns a paginated list of tasks',
+    type: TasksListResponseDto,
   })
-  findAll(@GetUser('id') userId: number, @Query() query: TaskQueryDto) {
+  findAll(
+    @GetUser('id') userId: number,
+    @Query() query: TaskQueryDto,
+  ): Promise<TasksListResponseDto> {
     return this.tasksService.findAll(userId, query);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a single task by its ID' })
-  @ApiResponse({ status: 200, description: 'Returns the requested task' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the requested task',
+    type: TaskResponseDto,
+  })
   @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'Task not found' })
   findOne(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.findOne(userId, id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a task' })
   @ApiBody({ type: UpdateTaskDto })
-  @ApiResponse({ status: 200, description: 'Task updated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Task updated successfully',
+    type: TaskResponseDto,
+  })
   @ApiResponse({
     status: 403,
     description: 'Cannot modify tasks outside user projects',
@@ -93,7 +118,7 @@ export class TasksController {
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTaskDto,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.update(userId, id, dto);
   }
 
@@ -112,34 +137,46 @@ export class TasksController {
   @Post(':id/toggle-complete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle the completion status of a task' })
-  @ApiResponse({ status: 200, description: 'Task completion status toggled' })
+  @ApiResponse({
+    status: 200,
+    description: 'Task completion status toggled',
+    type: TaskResponseDto,
+  })
   toggleComplete(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.toggleComplete(userId, id);
   }
 
   @Post(':id/assign/:assigneeId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Assign a task to a user' })
-  @ApiResponse({ status: 200, description: 'Task assigned successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Task assigned successfully',
+    type: TaskResponseDto,
+  })
   assignTask(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
     @Param('assigneeId', ParseIntPipe) assigneeId: number,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.assignTask(userId, id, assigneeId);
   }
 
   @Post(':id/unassign')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Unassign a task' })
-  @ApiResponse({ status: 200, description: 'Task unassigned successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Task unassigned successfully',
+    type: TaskResponseDto,
+  })
   unassignTask(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.unassignTask(userId, id);
   }
 
@@ -149,8 +186,9 @@ export class TasksController {
   @ApiResponse({
     status: 200,
     description: 'Returns a paginated list of all tasks for admins',
+    type: TasksListResponseDto,
   })
-  findAllAdmin(@Query() query: TaskQueryDto) {
+  findAllAdmin(@Query() query: TaskQueryDto): Promise<TasksListResponseDto> {
     return this.tasksService.findAll(0, query, true);
   }
 }
