@@ -17,8 +17,8 @@ import { UserThrottlerGuard } from './common/guards/user-throttler.guard';
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 60, // Time to live (60 seconds)
-        limit: 60, // Default limit (60 requests per 60 sec)
+        ttl: 60000, // Time to live in millisec (1min)
+        limit: 100, // Default limit (100 requests per 60 sec)
       },
     ]),
     PrismaModule,

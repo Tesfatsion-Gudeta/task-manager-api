@@ -18,6 +18,7 @@ const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_1 = require("@nestjs/jwt");
+const throttler_1 = require("@nestjs/throttler");
 let AuthController = class AuthController {
     authService;
     jwtService;
@@ -70,6 +71,7 @@ let AuthController = class AuthController {
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
+    (0, throttler_1.Throttle)({ default: { limit: 3, ttl: 3600000 } }),
     (0, swagger_1.ApiOperation)({
         summary: 'Register a new user',
         description: 'Creates a new user and returns an access token. Also sets an HttpOnly refresh token cookie.',
@@ -93,6 +95,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60000 } }),
     (0, swagger_1.ApiOperation)({
         summary: 'Log in a user',
         description: 'Logs in a registered user and returns an access token. Also sets a secure HttpOnly refresh token cookie.',

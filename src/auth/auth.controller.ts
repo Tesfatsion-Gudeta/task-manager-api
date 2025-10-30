@@ -24,6 +24,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 attempts per hour
   @ApiOperation({
     summary: 'Register a new user',
     description:
@@ -50,7 +51,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   // 5 attempts per minute per IP
   @ApiOperation({
     summary: 'Log in a user',
