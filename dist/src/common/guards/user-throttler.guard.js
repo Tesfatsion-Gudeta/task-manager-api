@@ -10,32 +10,49 @@ exports.UserThrottlerGuard = void 0;
 const common_1 = require("@nestjs/common");
 const throttler_1 = require("@nestjs/throttler");
 let UserThrottlerGuard = class UserThrottlerGuard extends throttler_1.ThrottlerGuard {
-    async getTracker(context) {
-        const request = context.switchToHttp().getRequest();
-        if (request.user?.id) {
-            return `user:${request.user.id}`;
+    async getTracker(req) {
+        if (req.user?.id) {
+            return `user:${req.user.id}`;
         }
-        return this.getClientIdentifier(request);
+        return this.getClientIdentifier(req);
     }
-    getClientIdentifier(request) {
-        const ip = request.ip ||
-            request.connection?.remoteAddress ||
-            request.socket?.remoteAddress ||
-            request.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-            'unknown';
-        return `ip:${ip.replace(/[^a-fA-F0-9.:]/g, '')}`;
-    }
-    async throwThrottlingException(context) {
-        const request = context.switchToHttp().getRequest();
-        const response = context.switchToHttp().getResponse();
-        const tracker = await this.getTracker(context);
-        const isUserBased = tracker.startsWith('user:');
-        console.log(`Rate limit exceeded for ${tracker} on ${request.url}`);
-        if (isUserBased) {
-            throw new throttler_1.ThrottlerException('Too many requests for your account. Please try again later.');
+    getClientIdentifier(req) {
+        let ip = 'unknown';
+        if (req.ip) {
+            ip = req.ip;
         }
-        else {
-            throw new throttler_1.ThrottlerException('Too many requests from your network. Please try again later.');
+        else if (req.connection?.remoteAddress) {
+            ip = req.connection.remoteAddress;
+        }
+        else if (req.socket?.remoteAddress) {
+            ip = req.socket.remoteAddress;
+        }
+        else if (req.headers?.['x-forwarded-for']) {
+            ip = req.headers['x-forwarded-for'].split(',')[0].trim();
+        }
+        const cleanIp = ip.replace(/^::ffff:/, '').replace(/[^a-fA-F0-9.:]/g, '');
+        return `ip:${cleanIp}`;
+    }
+    async canActivate(context) {
+        const httpContext = context.switchToHttp();
+        const request = httpContext.getRequest();
+        const response = httpContext.getResponse();
+        try {
+            return await super.canActivate(context);
+        }
+        catch (error) {
+            if (error instanceof throttler_1.ThrottlerException) {
+                const tracker = await this.getTracker(request);
+                const isUserBased = tracker.startsWith('user:');
+                console.log(`Rate limit exceeded for ${tracker} on ${request.url}`);
+                if (isUserBased) {
+                    throw new throttler_1.ThrottlerException('Too many requests for your account. Please try again later.');
+                }
+                else {
+                    throw new throttler_1.ThrottlerException('Too many requests from your network. Please try again later.');
+                }
+            }
+            throw error;
         }
     }
 };

@@ -3,52 +3,62 @@ import { ThrottlerGuard, ThrottlerException } from '@nestjs/throttler';
 
 @Injectable()
 export class UserThrottlerGuard extends ThrottlerGuard {
-  protected async getTracker(context: ExecutionContext): Promise<string> {
-    const request = context.switchToHttp().getRequest();
-
+  protected async getTracker(req: Record<string, any>): Promise<string> {
     // For authenticated users, use their ID
-    if (request.user?.id) {
-      return `user:${request.user.id}`;
+    if (req.user?.id) {
+      return `user:${req.user.id}`;
     }
 
-    // For unauthenticated requests, use IP but with better handling
-    return this.getClientIdentifier(request);
+    // For unauthenticated requests, use IP
+    return this.getClientIdentifier(req);
   }
 
-  private getClientIdentifier(request: any): string {
-    // Try multiple ways to get the client IP
-    const ip =
-      request.ip ||
-      request.connection?.remoteAddress ||
-      request.socket?.remoteAddress ||
-      request.headers['x-forwarded-for']?.split(',')[0]?.trim() || // For proxies
-      'unknown';
+  private getClientIdentifier(req: any): string {
+    // Get IP from various possible locations
+    let ip = 'unknown';
 
-    // Clean the IP string and use it as identifier
-    return `ip:${ip.replace(/[^a-fA-F0-9.:]/g, '')}`;
+    if (req.ip) {
+      ip = req.ip;
+    } else if (req.connection?.remoteAddress) {
+      ip = req.connection.remoteAddress;
+    } else if (req.socket?.remoteAddress) {
+      ip = req.socket.remoteAddress;
+    } else if (req.headers?.['x-forwarded-for']) {
+      ip = req.headers['x-forwarded-for'].split(',')[0].trim();
+    }
+
+    // Clean the IP (remove IPv6 prefix if present)
+    const cleanIp = ip.replace(/^::ffff:/, '').replace(/[^a-fA-F0-9.:]/g, '');
+    return `ip:${cleanIp}`;
   }
 
-  // Override to add custom headers or logging-optional step
-  protected async throwThrottlingException(
-    context: ExecutionContext,
-  ): Promise<void> {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+  // Handle the rate limiting logic with proper context
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const httpContext = context.switchToHttp();
+    const request = httpContext.getRequest();
+    const response = httpContext.getResponse();
 
-    const tracker = await this.getTracker(context);
-    const isUserBased = tracker.startsWith('user:');
+    try {
+      return await super.canActivate(context);
+    } catch (error) {
+      if (error instanceof ThrottlerException) {
+        // Customize the error based on user vs IP limiting
+        const tracker = await this.getTracker(request);
+        const isUserBased = tracker.startsWith('user:');
 
-    console.log(`Rate limit exceeded for ${tracker} on ${request.url}`);
+        console.log(`Rate limit exceeded for ${tracker} on ${request.url}`);
 
-    // Custom error message based on limit type
-    if (isUserBased) {
-      throw new ThrottlerException(
-        'Too many requests for your account. Please try again later.',
-      );
-    } else {
-      throw new ThrottlerException(
-        'Too many requests from your network. Please try again later.',
-      );
+        if (isUserBased) {
+          throw new ThrottlerException(
+            'Too many requests for your account. Please try again later.',
+          );
+        } else {
+          throw new ThrottlerException(
+            'Too many requests from your network. Please try again later.',
+          );
+        }
+      }
+      throw error;
     }
   }
 }

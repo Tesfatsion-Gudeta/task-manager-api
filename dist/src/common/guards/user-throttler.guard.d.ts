@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 export declare class UserThrottlerGuard extends ThrottlerGuard {
-    protected getTracker(context: ExecutionContext): Promise<string>;
+    protected getTracker(req: Record<string, any>): Promise<string>;
     private getClientIdentifier;
-    protected throwThrottlingException(context: ExecutionContext): Promise<void>;
+    canActivate(context: ExecutionContext): Promise<boolean>;
 }
