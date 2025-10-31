@@ -36,6 +36,29 @@ import {
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @Post()
+  @ApiOperation({ summary: 'Create a new project' })
+  @ApiBody({ type: CreateProjectDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Project created successfully',
+    schema: {
+      example: {
+        id: 1,
+        name: 'Website Redesign',
+        ownerId: 1,
+        createdAt: '2025-10-25T13:00:00.000Z',
+        updatedAt: '2025-10-25T13:00:00.000Z',
+      },
+    },
+  })
+  async create(
+    @GetUser('id') userId: number,
+    @Body() createProjectDto: CreateProjectDto,
+  ) {
+    return this.projectsService.createProject(userId, createProjectDto);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all projects for the logged-in user' })
   @ApiResponse({

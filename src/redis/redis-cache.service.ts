@@ -2,6 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
+//if needed for future
+
 @Injectable()
 export class RedisCacheService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}

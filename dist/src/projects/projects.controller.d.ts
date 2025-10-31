@@ -1,8 +1,15 @@
 import { ProjectsService } from './projects.service';
-import { UpdateProjectDto, ProjectQueryDto, ProjectsListResponseDto } from './dto';
+import { CreateProjectDto, UpdateProjectDto, ProjectQueryDto, ProjectsListResponseDto } from './dto';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
+    create(userId: number, createProjectDto: CreateProjectDto): Promise<{
+        name: string;
+        id: number;
+        ownerId: number;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
     findAll(userId: number, query: ProjectQueryDto): Promise<ProjectsListResponseDto>;
     findOne(userId: number, id: number): Promise<import("./dto").ProjectResponseDto>;
     update(userId: number, id: number, updateProjectDto: UpdateProjectDto): Promise<{

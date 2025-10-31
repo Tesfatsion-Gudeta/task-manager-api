@@ -1,12 +1,8 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { RedisCacheService } from '../redis/redis-cache.service';
 import { CreateTaskDto, UpdateTaskDto, TaskQueryDto, TaskResponseDto, TasksListResponseDto } from './dto';
 export declare class TasksService {
     private prisma;
-    private redisCacheService;
-    constructor(prisma: PrismaService, redisCacheService: RedisCacheService);
-    private getTaskCacheKey;
-    private getTasksListCacheKey;
+    constructor(prisma: PrismaService);
     createTask(userId: number, dto: CreateTaskDto): Promise<TaskResponseDto>;
     findAll(userId: number, query: TaskQueryDto, isAdmin?: boolean): Promise<TasksListResponseDto>;
     findOne(userId: number, id: number): Promise<TaskResponseDto>;

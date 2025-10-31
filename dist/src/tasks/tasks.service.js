@@ -12,30 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TasksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const redis_cache_service_1 = require("../redis/redis-cache.service");
 let TasksService = class TasksService {
     prisma;
-    redisCacheService;
-    constructor(prisma, redisCacheService) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.redisCacheService = redisCacheService;
-    }
-    getTaskCacheKey(taskId) {
-        return `task:${taskId}`;
-    }
-    getTasksListCacheKey(userId, query) {
-        const queryString = JSON.stringify({
-            page: query.page,
-            limit: query.limit,
-            search: query.search,
-            sortBy: query.sortBy,
-            sortOrder: query.sortOrder,
-            completed: query.completed,
-            projectId: query.projectId,
-            assigneeId: query.assigneeId,
-        });
-        const queryHash = Buffer.from(queryString).toString('base64url');
-        return `tasks:user:${userId}:${queryHash}`;
     }
     async createTask(userId, dto) {
         const project = await this.prisma.project.findUnique({
@@ -74,18 +54,11 @@ let TasksService = class TasksService {
                 assignee: { select: { id: true, email: true } },
             },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(dto.projectId));
-        console.log(`🆕 Created task ${task.id} - related caches invalidated`);
+        console.log(`Created task ${task.id}`);
         return task;
     }
     async findAll(userId, query, isAdmin = false) {
-        const cacheKey = this.getTasksListCacheKey(userId, query);
-        const cachedTasks = await this.redisCacheService.get(cacheKey);
-        if (cachedTasks !== undefined) {
-            console.log(`✅ Serving tasks list from cache for user ${userId}`);
-            return cachedTasks;
-        }
-        console.log(`🔍 Fetching tasks from database for user ${userId}`);
+        console.log(`Fetching tasks from database for user ${userId}`);
         const pageSafe = Number(query.page ?? 1);
         const limitSafe = Number(query.limit ?? 10);
         const skip = (pageSafe - 1) * limitSafe;
@@ -147,21 +120,10 @@ let TasksService = class TasksService {
                 totalPages: Math.ceil(total / limitSafe),
             },
         };
-        await this.redisCacheService.set(cacheKey, result, 300);
-        console.log(`💾 Cached tasks list for user ${userId} (5min TTL)`);
         return result;
     }
     async findOne(userId, id) {
-        const cacheKey = this.getTaskCacheKey(id);
-        const cachedTask = await this.redisCacheService.get(cacheKey);
-        if (cachedTask !== undefined) {
-            console.log(`✅ Serving task ${id} from cache`);
-            if (cachedTask.project.owner.id !== userId) {
-                throw new common_1.ForbiddenException('Access denied');
-            }
-            return cachedTask;
-        }
-        console.log(`🔍 Fetching task ${id} from database`);
+        console.log(`Fetching task ${id} from database`);
         const task = await this.prisma.task.findUnique({
             where: { id },
             include: {
@@ -184,8 +146,6 @@ let TasksService = class TasksService {
         if (task.project.ownerId !== userId) {
             throw new common_1.ForbiddenException('Access denied');
         }
-        await this.redisCacheService.set(cacheKey, task, 3600);
-        console.log(`💾 Cached task ${id} (1hr TTL)`);
         return task;
     }
     async update(userId, id, dto) {
@@ -223,8 +183,7 @@ let TasksService = class TasksService {
                 assignee: { select: { id: true, email: true } },
             },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(id));
-        console.log(`🗑️ Invalidated cache for updated task ${id}`);
+        console.log(`Updated task ${id}`);
         return updatedTask;
     }
     async remove(userId, id) {
@@ -232,8 +191,7 @@ let TasksService = class TasksService {
         await this.prisma.task.delete({
             where: { id },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(id));
-        console.log(`🗑️ Invalidated cache for deleted task ${id}`);
+        console.log(`Deleted task ${id}`);
         return { message: 'Task deleted successfully' };
     }
     async toggleComplete(userId, id) {
@@ -256,8 +214,7 @@ let TasksService = class TasksService {
                 },
             },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(id));
-        console.log(`🗑️ Invalidated cache for toggled task ${id}`);
+        console.log(`Toggled completion for task ${id}`);
         return updatedTask;
     }
     async assignTask(userId, id, assigneeId) {
@@ -286,8 +243,7 @@ let TasksService = class TasksService {
                 },
             },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(id));
-        console.log(`🗑️ Invalidated cache for assigned task ${id}`);
+        console.log(`Assigned task ${id} to user ${assigneeId}`);
         return updatedTask;
     }
     async unassignTask(userId, id) {
@@ -310,8 +266,7 @@ let TasksService = class TasksService {
                 },
             },
         });
-        await this.redisCacheService.del(this.getTaskCacheKey(id));
-        console.log(`🗑️ Invalidated cache for unassigned task ${id}`);
+        console.log(`Unassigned task ${id}`);
         return updatedTask;
     }
     async validateTaskOwnership(userId, taskId) {
@@ -337,7 +292,6 @@ let TasksService = class TasksService {
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        redis_cache_service_1.RedisCacheService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], TasksService);
 //# sourceMappingURL=tasks.service.js.map

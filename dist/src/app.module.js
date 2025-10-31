@@ -17,7 +17,6 @@ const tasks_module_1 = require("./tasks/tasks.module");
 const prisma_module_1 = require("./prisma/prisma.module");
 const throttler_1 = require("@nestjs/throttler");
 const user_throttler_guard_1 = require("./common/guards/user-throttler.guard");
-const redis_module_1 = require("./redis/redis.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,7 +32,6 @@ exports.AppModule = AppModule = __decorate([
                     limit: 100,
                 },
             ]),
-            redis_module_1.RedisModule,
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,

@@ -22,7 +22,7 @@ import { RedisModule } from './redis/redis.module';
         limit: 100, // Default limit (100 requests per 60 sec)
       },
     ]),
-    RedisModule,
+    // RedisModule,
     PrismaModule,
     AuthModule,
     UsersModule,

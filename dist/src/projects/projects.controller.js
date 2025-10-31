@@ -24,6 +24,9 @@ let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
     }
+    async create(userId, createProjectDto) {
+        return this.projectsService.createProject(userId, createProjectDto);
+    }
     async findAll(userId, query) {
         return this.projectsService.findAll(userId, query);
     }
@@ -38,6 +41,29 @@ let ProjectsController = class ProjectsController {
     }
 };
 exports.ProjectsController = ProjectsController;
+__decorate([
+    (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new project' }),
+    (0, swagger_1.ApiBody)({ type: dto_1.CreateProjectDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Project created successfully',
+        schema: {
+            example: {
+                id: 1,
+                name: 'Website Redesign',
+                ownerId: 1,
+                createdAt: '2025-10-25T13:00:00.000Z',
+                updatedAt: '2025-10-25T13:00:00.000Z',
+            },
+        },
+    }),
+    __param(0, (0, get_user_decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, dto_1.CreateProjectDto]),
+    __metadata("design:returntype", Promise)
+], ProjectsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all projects for the logged-in user' }),

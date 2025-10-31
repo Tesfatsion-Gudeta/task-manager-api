@@ -3,10 +3,8 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
-  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { RedisCacheService } from '../redis/redis-cache.service';
 import {
   CreateTaskDto,
   UpdateTaskDto,
@@ -18,30 +16,7 @@ import { Task } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
-  constructor(
-    private prisma: PrismaService,
-    private redisCacheService: RedisCacheService,
-  ) {}
-
-  // Cache key generators
-  private getTaskCacheKey(taskId: number): string {
-    return `task:${taskId}`;
-  }
-
-  private getTasksListCacheKey(userId: number, query: TaskQueryDto): string {
-    const queryString = JSON.stringify({
-      page: query.page,
-      limit: query.limit,
-      search: query.search,
-      sortBy: query.sortBy,
-      sortOrder: query.sortOrder,
-      completed: query.completed,
-      projectId: query.projectId,
-      assigneeId: query.assigneeId,
-    });
-    const queryHash = Buffer.from(queryString).toString('base64url');
-    return `tasks:user:${userId}:${queryHash}`;
-  }
+  constructor(private prisma: PrismaService) {}
 
   async createTask(
     userId: number,
@@ -91,11 +66,7 @@ export class TasksService {
       },
     });
 
-    // Invalidate the project cache since tasks changed
-    await this.redisCacheService.del(this.getTaskCacheKey(dto.projectId));
-    console.log(`Created task ${task.id} - related caches invalidated`);
-
-    // Return as TaskResponseDto (the Prisma result already matches the DTO structure)
+    console.log(`Created task ${task.id}`);
     return task as unknown as TaskResponseDto;
   }
 
@@ -104,16 +75,6 @@ export class TasksService {
     query: TaskQueryDto,
     isAdmin = false,
   ): Promise<TasksListResponseDto> {
-    const cacheKey = this.getTasksListCacheKey(userId, query);
-
-    // Use the DTO type for caching
-    const cachedTasks =
-      await this.redisCacheService.get<TasksListResponseDto>(cacheKey);
-    if (cachedTasks !== undefined) {
-      console.log(` Serving tasks list from cache for user ${userId}`);
-      return cachedTasks;
-    }
-
     console.log(`Fetching tasks from database for user ${userId}`);
 
     const pageSafe = Number(query.page ?? 1);
@@ -181,29 +142,11 @@ export class TasksService {
       },
     };
 
-    await this.redisCacheService.set(cacheKey, result, 300);
-    console.log(` Cached tasks list for user ${userId} (5min TTL)`);
     return result;
   }
 
   async findOne(userId: number, id: number): Promise<TaskResponseDto> {
-    const cacheKey = this.getTaskCacheKey(id);
-
-    // Use the DTO type for caching
-    const cachedTask =
-      await this.redisCacheService.get<TaskResponseDto>(cacheKey);
-    if (cachedTask !== undefined) {
-      console.log(`✅ Serving task ${id} from cache`);
-
-      // TypeScript knows the structure from our DTO
-      if (cachedTask.project.owner.id !== userId) {
-        throw new ForbiddenException('Access denied');
-      }
-
-      return cachedTask;
-    }
-
-    console.log(`🔍 Fetching task ${id} from database`);
+    console.log(`Fetching task ${id} from database`);
 
     const task = await this.prisma.task.findUnique({
       where: { id },
@@ -230,13 +173,6 @@ export class TasksService {
       throw new ForbiddenException('Access denied');
     }
 
-    // Cache using the DTO type
-    await this.redisCacheService.set(
-      cacheKey,
-      task as unknown as TaskResponseDto,
-      3600,
-    );
-    console.log(` Cached task ${id} (1hr TTL)`);
     return task as unknown as TaskResponseDto;
   }
 
@@ -288,8 +224,7 @@ export class TasksService {
       },
     });
 
-    await this.redisCacheService.del(this.getTaskCacheKey(id));
-    console.log(`🗑️ Invalidated cache for updated task ${id}`);
+    console.log(`Updated task ${id}`);
     return updatedTask as unknown as TaskResponseDto;
   }
 
@@ -300,8 +235,7 @@ export class TasksService {
       where: { id },
     });
 
-    await this.redisCacheService.del(this.getTaskCacheKey(id));
-    console.log(` Invalidated cache for deleted task ${id}`);
+    console.log(`Deleted task ${id}`);
     return { message: 'Task deleted successfully' };
   }
 
@@ -327,8 +261,7 @@ export class TasksService {
       },
     });
 
-    await this.redisCacheService.del(this.getTaskCacheKey(id));
-    console.log(` Invalidated cache for toggled task ${id}`);
+    console.log(`Toggled completion for task ${id}`);
     return updatedTask as unknown as TaskResponseDto;
   }
 
@@ -366,8 +299,7 @@ export class TasksService {
       },
     });
 
-    await this.redisCacheService.del(this.getTaskCacheKey(id));
-    console.log(`Invalidated cache for assigned task ${id}`);
+    console.log(`Assigned task ${id} to user ${assigneeId}`);
     return updatedTask as unknown as TaskResponseDto;
   }
 
@@ -393,8 +325,7 @@ export class TasksService {
       },
     });
 
-    await this.redisCacheService.del(this.getTaskCacheKey(id));
-    console.log(`Invalidated cache for unassigned task ${id}`);
+    console.log(`Unassigned task ${id}`);
     return updatedTask as unknown as TaskResponseDto;
   }
 
