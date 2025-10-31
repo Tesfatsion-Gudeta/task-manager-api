@@ -6,17 +6,17 @@ export declare class ProjectsController {
     findAll(userId: number, query: ProjectQueryDto): Promise<ProjectsListResponseDto>;
     findOne(userId: number, id: number): Promise<import("./dto").ProjectResponseDto>;
     update(userId: number, id: number, updateProjectDto: UpdateProjectDto): Promise<{
+        name: string;
+        id: number;
+        ownerId: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
-        name: string;
-        ownerId: number;
     }>;
     remove(userId: number, id: number): Promise<{
+        name: string;
+        id: number;
+        ownerId: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
-        name: string;
-        ownerId: number;
     }>;
 }

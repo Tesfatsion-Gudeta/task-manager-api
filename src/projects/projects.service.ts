@@ -9,7 +9,7 @@ import {
   CreateProjectDto,
   ProjectQueryDto,
   UpdateProjectDto,
-  ProjectsListResponseDto, // Use DTO instead of custom interface
+  ProjectsListResponseDto,
   ProjectResponseDto,
 } from './dto';
 import { Project } from '@prisma/client';
@@ -50,7 +50,7 @@ export class ProjectsService {
       },
     });
 
-    console.log(`🆕 Created project ${project.id} - lists will auto-expire`);
+    console.log(`Created project ${project.id} - lists will auto-expire`);
     return project;
   }
 
@@ -60,15 +60,16 @@ export class ProjectsService {
   ): Promise<ProjectsListResponseDto> {
     const cacheKey = this.getProjectsListCacheKey(userId, query);
 
-    // Use the DTO type for caching - much cleaner!
     const cachedProjects =
       await this.redisCacheService.get<ProjectsListResponseDto>(cacheKey);
+
+    //returning from cache if available
     if (cachedProjects !== undefined) {
-      console.log(`✅ Serving projects list from cache for user ${userId}`);
+      console.log(` Serving projects list from cache for user ${userId}`);
       return cachedProjects;
     }
 
-    console.log(`🔍 Fetching projects from database for user ${userId}`);
+    console.log(` Fetching projects from database for user ${userId}`);
 
     const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
     const sanitizedPage = Math.max(1, page);
@@ -115,7 +116,7 @@ export class ProjectsService {
     };
 
     await this.redisCacheService.set(cacheKey, result, 300);
-    console.log(`💾 Cached projects list for user ${userId} (5min TTL)`);
+    console.log(` Cached projects list for user ${userId} (5min TTL)`);
     return result;
   }
 
@@ -126,7 +127,7 @@ export class ProjectsService {
     const cachedProject =
       await this.redisCacheService.get<ProjectResponseDto>(cacheKey);
     if (cachedProject !== undefined) {
-      console.log(`✅ Serving project ${id} from cache`);
+      console.log(`Serving project ${id} from cache`);
 
       if (cachedProject.ownerId !== userId) {
         throw new ForbiddenException('Access denied');
@@ -135,7 +136,7 @@ export class ProjectsService {
       return cachedProject;
     }
 
-    console.log(`🔍 Fetching project ${id} from database`);
+    console.log(` Fetching project ${id} from database`);
 
     const project = await this.prisma.project.findUnique({
       where: { id },
@@ -173,7 +174,7 @@ export class ProjectsService {
       project as ProjectResponseDto,
       3600,
     );
-    console.log(`💾 Cached project ${id} (1hr TTL)`);
+    console.log(` Cached project ${id} (1hr TTL)`);
     return project as ProjectResponseDto;
   }
 
@@ -190,7 +191,7 @@ export class ProjectsService {
     });
 
     await this.redisCacheService.del(this.getProjectCacheKey(id));
-    console.log(`🗑️ Invalidated cache for updated project ${id}`);
+    console.log(` Invalidated cache for updated project ${id}`);
     return updatedProject;
   }
 
@@ -202,7 +203,7 @@ export class ProjectsService {
     });
 
     await this.redisCacheService.del(this.getProjectCacheKey(id));
-    console.log(`🗑️ Invalidated cache for deleted project ${id}`);
+    console.log(` Invalidated cache for deleted project ${id}`);
     return deletedProject;
   }
 

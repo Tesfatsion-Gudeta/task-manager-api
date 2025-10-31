@@ -26,14 +26,14 @@ exports.RedisModule = RedisModule = __decorate([
                     const redisPort = configService.get('REDIS_PORT');
                     const nodeEnv = configService.get('NODE_ENV');
                     if (nodeEnv === 'development' || !redisHost) {
-                        console.log('💾 Using memory cache for development');
+                        console.log('Using memory cache for development');
                         return {
                             store: 'memory',
                             ttl: 3600,
                             max: 1000,
                         };
                     }
-                    console.log('🚀 Using Redis cache for production');
+                    console.log('Using Redis cache for production');
                     return {
                         store: require('cache-manager-redis-store'),
                         socket: {

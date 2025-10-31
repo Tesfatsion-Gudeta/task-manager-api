@@ -41,17 +41,17 @@ let ProjectsService = class ProjectsService {
                 ownerId: userId,
             },
         });
-        console.log(`🆕 Created project ${project.id} - lists will auto-expire`);
+        console.log(`Created project ${project.id} - lists will auto-expire`);
         return project;
     }
     async findAll(userId, query) {
         const cacheKey = this.getProjectsListCacheKey(userId, query);
         const cachedProjects = await this.redisCacheService.get(cacheKey);
         if (cachedProjects !== undefined) {
-            console.log(`✅ Serving projects list from cache for user ${userId}`);
+            console.log(` Serving projects list from cache for user ${userId}`);
             return cachedProjects;
         }
-        console.log(`🔍 Fetching projects from database for user ${userId}`);
+        console.log(` Fetching projects from database for user ${userId}`);
         const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
         const sanitizedPage = Math.max(1, page);
         const sanitizedLimit = Math.max(1, limit);
@@ -92,20 +92,20 @@ let ProjectsService = class ProjectsService {
             },
         };
         await this.redisCacheService.set(cacheKey, result, 300);
-        console.log(`💾 Cached projects list for user ${userId} (5min TTL)`);
+        console.log(` Cached projects list for user ${userId} (5min TTL)`);
         return result;
     }
     async findOne(userId, id) {
         const cacheKey = this.getProjectCacheKey(id);
         const cachedProject = await this.redisCacheService.get(cacheKey);
         if (cachedProject !== undefined) {
-            console.log(`✅ Serving project ${id} from cache`);
+            console.log(`Serving project ${id} from cache`);
             if (cachedProject.ownerId !== userId) {
                 throw new common_1.ForbiddenException('Access denied');
             }
             return cachedProject;
         }
-        console.log(`🔍 Fetching project ${id} from database`);
+        console.log(` Fetching project ${id} from database`);
         const project = await this.prisma.project.findUnique({
             where: { id },
             include: {
@@ -134,7 +134,7 @@ let ProjectsService = class ProjectsService {
             throw new common_1.ForbiddenException('Access denied');
         }
         await this.redisCacheService.set(cacheKey, project, 3600);
-        console.log(`💾 Cached project ${id} (1hr TTL)`);
+        console.log(` Cached project ${id} (1hr TTL)`);
         return project;
     }
     async update(userId, id, dto) {
@@ -144,7 +144,7 @@ let ProjectsService = class ProjectsService {
             data: dto,
         });
         await this.redisCacheService.del(this.getProjectCacheKey(id));
-        console.log(`🗑️ Invalidated cache for updated project ${id}`);
+        console.log(` Invalidated cache for updated project ${id}`);
         return updatedProject;
     }
     async remove(userId, id) {
@@ -153,7 +153,7 @@ let ProjectsService = class ProjectsService {
             where: { id },
         });
         await this.redisCacheService.del(this.getProjectCacheKey(id));
-        console.log(`🗑️ Invalidated cache for deleted project ${id}`);
+        console.log(` Invalidated cache for deleted project ${id}`);
         return deletedProject;
     }
     async validateOwnership(userId, projectId) {

@@ -16,7 +16,7 @@ import { RedisCacheService } from './redis-cache.service';
 
         // Development: use memory cache (no Redis needed)
         if (nodeEnv === 'development' || !redisHost) {
-          console.log('💾 Using memory cache for development');
+          console.log('Using memory cache for development');
           return {
             store: 'memory',
             ttl: 3600,
@@ -25,7 +25,7 @@ import { RedisCacheService } from './redis-cache.service';
         }
 
         // Production: use Redis
-        console.log('🚀 Using Redis cache for production');
+        console.log('Using Redis cache for production');
         return {
           store: require('cache-manager-redis-store'),
           socket: {
