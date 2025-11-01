@@ -66,7 +66,7 @@ A robust, production-ready **Task Management API** built with **NestJS**, featur
 ### ⚙️ Installation
 
 ```bash
-git clone https://github.com/yourusername/task-manager-api.git
+git clone https://github.com/Tesfatsion-Gudeta/task-manager-api.git
 cd task-manager-api
 npm install
 ```
@@ -86,17 +86,20 @@ JWT_REFRESH_SECRET=your_super_secret_refresh_key
 # Application
 PORT=3001
 NODE_ENV=development
-
-Database Setup
+```
+### Database Setup
+```
 npx prisma generate
 npx prisma migrate dev
 npx prisma db seed # optional
-
-Start the Application
-# Development
+```
+### Start the Application
+- Development
+```
 npm run start:dev
-
-# Production
+```
+- Production
+```
 npm run build
 npm run start:prod
 ```
