@@ -22,15 +22,13 @@ A robust, production-ready **Task Management API** built with **NestJS**, featur
 - CRUD operations for projects and tasks  
 - Task assignment and collaboration  
 - Advanced filtering & search with pagination  
-- Real-time progress tracking  
-- File attachments support  
+- Real-time progress tracking   
 
 ### ⚡ Performance & Scalability
 - **Redis caching** for 10x faster responses  
 - Smart cache invalidation for data consistency  
 - Database connection pooling  
-- Rate limiting to prevent abuse  
-- Background job processing with **queues (Bull)**  
+- Rate limiting to prevent abuse    
 
 ### 🛡️ Security & Reliability
 - **Helmet.js** security headers  
@@ -53,7 +51,6 @@ A robust, production-ready **Task Management API** built with **NestJS**, featur
 | **Validation** | class-validator & class-transformer |
 | **Documentation** | Swagger / OpenAPI 3.0 |
 | **Security** | Helmet, CORS, Rate Limiting |
-| **Testing** | Jest (Unit & E2E) |
 
 ---
 
@@ -223,13 +220,13 @@ npm run start:prod
    git checkout -b feature/new-feature
    ```
 2. **Commit your changes**
-  ```bash
-  git commit -m "Add new feature"
-  ```
+   ```bash
+   git commit -m "Add new feature"
+   ```
 3. **Push to the branch**
- ```bash
- git push origin feature/new-feature
- ```
+   ```bash
+   git push origin feature/new-feature
+   ```
 4. **Open a Pull Request**
 
 ## 📄 License
