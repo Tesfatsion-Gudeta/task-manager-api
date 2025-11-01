@@ -229,9 +229,6 @@ npm run start:prod
    ```
 4. **Open a Pull Request**
 
-## 📄 License
-
-Licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
 ---
 
