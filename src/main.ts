@@ -27,7 +27,7 @@ async function bootstrap() {
 
   // cors config
   app.enableCors({
-    origin: ['http://localhost:8080', 'http://localhost:3000','https://task-flow-seven-beta.vercel.app'], // Allowed frontend origins
+    origin: ['http://localhost:8080', 'http://localhost:3000','https://task-flow-seven-beta.vercel.app','http://task-flow-seven-beta.vercel.app'], // Allowed frontend origins
     credentials: true, // Allows cookies and authorization headers to be sent
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Explicitly allowed headers
